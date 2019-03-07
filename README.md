@@ -1,10 +1,12 @@
 # Standard Go Project Layout
 
-This is a basic layout for Go application projects. It represents the most common directory structure with a number of small enhancements along with several supporting directories common to any real world application. 
+This is a basic layout for Go application projects. It's not an official standard defined by the core Go dev team; however, it is a set of common historical and emerging project layout patterns in the Go ecosystem. Some of these patterns are more popular than others. It also has a number of small enhancements along with several supporting directories common to any large enough real world application.
+
+If you are trying to learn Go or if you are building a PoC or a toy project for yourself this project layout is an overkill. Start with something really simple (a single `main.go` file is more than enough). As your project grows keep in mind that it'll be important to make sure your code is well structured otherwise you'll end up with a messy code with lots of hidden dependencies and global state. When you have more people working on the project you'll need even more structure. That's when it's important to introduce a common way to manage packages/libraries. When you have an open source project or when you know other projects import the code from your project repository that's when it's important to have private (aka `internal`) packages and code. Clone the repository, keep what you need and delete everything else! Just because it's there it doesn't mean you have to use it all. None of these patterns are used in every single project. Even the `vendor` pattern is not universal.
 
 This project layout is intentionally generic and it doesn't try to impose a specific Go package structure.
 
-Clone the repository, keep what you need and delete everything else!
+This is a community effort. Open an issue if you see a new pattern or if you think one of the existing patterns needs to be updated.
 
 If you need help with naming, formatting and style start by running [`gofmt`](https://golang.org/cmd/gofmt/) and [`golint`](https://github.com/golang/lint). Also make sure to read these Go code style guidelines and recommendations:
 * https://talks.golang.org/2014/names.slide
@@ -12,7 +14,13 @@ If you need help with naming, formatting and style start by running [`gofmt`](ht
 * https://blog.golang.org/package-names
 * https://github.com/golang/go/wiki/CodeReviewComments
 
-See [Go Project Layout](https://medium.com/golang-learn/go-project-layout-e5213cdcfaa2) for additional background information.
+See [`Go Project Layout`](https://medium.com/golang-learn/go-project-layout-e5213cdcfaa2) for additional background information.
+
+More about naming and organizing packages as well as other code structure recommendations:
+* [GopherCon EU 2018: Peter Bourgon - Best Practices for Industrial Programming](https://www.youtube.com/watch?v=PTE4VJIdHPg)
+* [GopherCon Russia 2018: Ashley McNamara + Brian Ketelsen - Go best practices.](https://www.youtube.com/watch?v=MzTcsI6tn-0)
+* [GopherCon 2017: Edward Muller - Go Anti-Patterns](https://www.youtube.com/watch?v=ltqV6pDKZD8)
+* [GopherCon 2018: Kat Zien - How Do You Structure Your Go Apps](https://www.youtube.com/watch?v=oL6JBUk6tj0)
 
 ## Go Directories
 
@@ -36,11 +44,11 @@ Put your actual application code in the `/internal/app` directory (e.g., `/inter
 
 ### `/pkg`
 
-Library code that's safe to use by external applications (e.g., `/pkg/mypubliclib`).
+Library code that's ok to use by external applications (e.g., `/pkg/mypubliclib`). Other projects will import these libraries expecting them to work, so think twice before you put something here :-)
 
-Other projects will import these libraries expecting them to work, so think twice before you put something here :-)
+It's also a way to group Go code in one place when your root directory contains lots of non-Go components and directories making it easier to run various Go tools (as mentioned in the [`Best Practices for Industrial Programming`](https://www.youtube.com/watch?v=PTE4VJIdHPg) from GopherCon EU 2018).
 
-See the [`/pkg`](pkg/README.md) directory for examples.
+See the [`/pkg`](pkg/README.md) directory if you want to see which popular Go repos use this project layout pattern. This is a common layout pattern, but it's not universally accepted and some in the Go community don't recommend it. 
 
 ### `/vendor`
 
@@ -84,11 +92,11 @@ See the [`/scripts`](scripts/README.md) directory for examples.
 
 ### `/build`
 
-Packaging and Continous Integration.
+Packaging and Continuous Integration.
 
 Put your cloud (AMI), container (Docker), OS (deb, rpm, pkg) package configurations and scripts in the `/build/package` directory.
 
-Put your CI (travis, circle, drone) configurations and scripts in the `/build/ci` directory.
+Put your CI (travis, circle, drone) configurations and scripts in the `/build/ci` directory. Note that some of the CI tools (e.g., Travis CI) are very picky about the location of their config files. Try putting the config files in the `/build/ci` directory linking them to the location where the CI tools expect them (when possible).
 
 ### `/deployments`
 
@@ -130,13 +138,21 @@ Git hooks.
 
 ### `/assets`
 
-Other assets to go along with your repository.
+Other assets to go along with your repository (images, logos, etc).
+
+### `/website`
+
+This is the place to put your project's website data if you are not using Github pages.
+
+See the [`/website`](website/README.md) directory for examples.
 
 ## Directories You Shouldn't Have
 
 ### `/src`
 
 Some Go projects do have a `src` folder, but it usually happens when the devs came from the Java world where it's a common pattern. If you can help yourself try not to adopt this Java pattern. You really don't want your Go code or Go projects to look like Java :-)
+
+Don't confuse the project level `/src` directory with the `/src` directory Go uses for its workspaces as described in [`How to Write Go Code`](https://golang.org/doc/code.html). The `$GOPATH` environment variable points to your (current) workspace (by default it points to `$HOME/go` on non-windows systems). This workspace includes the top level `/pkg`, `/bin` and `/src` directories. Your actual project ends up being a sub-directory under `/src`, so if you have the `/src` directory in your project the project path will look like this: `/some/path/to/workspace/src/your_project/src/your_code.go`. Note that with Go 1.11 it's possible to have your project outside of your `GOPATH`, but it still doesn't mean it's a good idea to use this layout pattern.
 
 
 ## Badges
